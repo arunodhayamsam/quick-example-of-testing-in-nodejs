@@ -22,9 +22,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::453422525221:role/oidc
+          role-to-assume: ${{ secerets.ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
-      
       - name: Start EC2 runner
         id: start-ec2-runner
         uses: machulav/ec2-github-runner@v2
@@ -43,7 +42,6 @@ jobs:
     steps:
       - name: Clone the Repo
         uses: actions/checkout@v3    
-
       - name: Run the test
         run: |
           npm install
@@ -60,7 +58,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::453422525221:role/oidc
+          role-to-assume: ${{ secerets.ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2
