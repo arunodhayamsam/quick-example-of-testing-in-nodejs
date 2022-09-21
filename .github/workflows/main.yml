@@ -15,7 +15,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           node -v
-          git clone https://github.com/Lissy93/quick-example-of-testing-in-nodejs.git
-          cd quick-example-of-testing-in-nodejs.git
+          cd quick-example-of-testing-in-nodejs
           npm install
           npm start
