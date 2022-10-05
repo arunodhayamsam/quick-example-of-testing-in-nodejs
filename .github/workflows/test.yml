@@ -39,7 +39,6 @@ jobs:
         run: |
           AWS_INSTANCE_ID=${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
           echo $AWS_INSTANCE_ID
-          aws lightsail get-load-balancers --region us-east-1
           aws elb register-instances-with-load-balancer --load-balancer-name my-load-balancer --instances $AWS_INSTANCE_ID
 
   runner-job:
