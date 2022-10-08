@@ -1,5 +1,5 @@
 
-name: test
+name: ci
 
 on:
   push:
@@ -36,12 +36,12 @@ jobs:
           ec2-instance-type: ${{ secrets.INSTANCE_TYPE }}
           subnet-id: ${{ secrets.SUBNET }}
           security-group-id: ${{ secrets.SECURITY_GROUP }}
-      - name: Attach EC2 instance with ALB
-        run: |
-          AWS_INSTANCE_ID=${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-          TARGET_ARN=arn:aws:elasticloadbalancing:us-east-1:377764184470:targetgroup/test-ec2/8f39472309af5169
-          echo $AWS_INSTANCE_ID
-          aws elbv2 register-targets --target-group-arn $TARGET_ARN  --targets Id=$AWS_INSTANCE_ID 
+     # - name: Attach EC2 instance with ALB
+     #   run: |
+     #     AWS_INSTANCE_ID=${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+     #     TARGET_ARN=arn:aws:elasticloadbalancing:us-east-1:377764184470:targetgroup/test-ec2/8f39472309af5169
+     #     echo $AWS_INSTANCE_ID
+     #     aws elbv2 register-targets --target-group-arn $TARGET_ARN  --targets Id=$AWS_INSTANCE_ID 
   runner-job:
     name: Do the job on the runner
     needs: start-runner # required to start the main job when the runner is ready
@@ -49,12 +49,10 @@ jobs:
     steps:
       - name: Clone the Repo
         uses: actions/checkout@v3    
-      - name: Run the test
-        run: |
-          npm install
-          npm test  
+      - name: Hello World
+        run: echo 'Hello World!'
 
-  terminate-runner:
+  stop-runner:
     name: Terminate self-hosted EC2 runner
     needs:
       - start-runner # required to get output from the start-runner job
