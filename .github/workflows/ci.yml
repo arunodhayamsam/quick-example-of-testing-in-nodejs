@@ -77,7 +77,7 @@ jobs:
       - name: Configure AWS ELB Rule
         uses: icalia-actions/aws-configure-elb-rule@v0.0.1
         with:
-          listener: arn:aws:elasticloadbalancing:us-east-1:215476549484:loadbalancer/app/cicdtest/fd1927d3d82ea719
+          listener: arn:aws:elasticloadbalancing:us-east-1:215476549484:listener/app/cicdtest/fd1927d3d82ea719/945871c18b472492
           
           # You can define the conditions, actions and tags using JSON or YAML:
           conditions: |  
