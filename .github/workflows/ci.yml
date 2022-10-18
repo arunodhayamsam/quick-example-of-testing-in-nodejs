@@ -36,12 +36,64 @@ jobs:
           ec2-instance-type: ${{ secrets.INSTANCE_TYPE }}
           subnet-id: ${{ secrets.SUBNET }}
           security-group-id: ${{ secrets.SECURITY_GROUP }}
-     # - name: Attach EC2 instance with ALB
-     #   run: |
-     #     AWS_INSTANCE_ID=${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
-     #     TARGET_ARN=arn:aws:elasticloadbalancing:us-east-1:377764184470:targetgroup/test-ec2/8f39472309af5169
-     #     echo $AWS_INSTANCE_ID
-     #     aws elbv2 register-targets --target-group-arn $TARGET_ARN  --targets Id=$AWS_INSTANCE_ID 
+
+      - name: Attach EC2 instance with ALB
+        run: |
+          AWS_INSTANCE_ID=${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+          TARGET_ARN=arn:aws:elasticloadbalancing:us-east-1:215476549484:targetgroup/cicdtest/da20b250914e1057
+          echo $AWS_INSTANCE_ID
+          aws elbv2 register-targets --target-group-arn $TARGET_ARN  --targets Id=$AWS_INSTANCE_ID 
+
+      - name: "Create an A record set"
+        uses: Roosterfish/aws-route53-record-set-action@master
+        with: 
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_route53_hosted_zone_id: Z034246377GVRJEACWW6
+          aws_route53_rr_action: "CREATE"
+          aws_route53_rr_name: "test.cmcloudlab1029.info"
+          aws_route53_rr_type: "CNAME"
+          aws_route53_rr_ttl: "60"
+          aws_route53_rr_value: "1.2.3.4"
+
+      - name: Configure AWS Route53 Records
+        uses: icalia-actions/aws-configure-route53-records@v0.0.1
+        with:
+          hosted-zone-id: Z034246377GVRJEACWW6
+          records: |
+            [
+              {
+                "Name": "test.cmcloudlab1029.info",
+                "Type": "CNAME",
+                "AliasTarget": {
+                  "HostedZoneId": "Z35SXDOTRQ7X7K",
+                  "DNSName": "dualstack.cicdtest-1781360848.us-east-1.elb.amazonaws.com",
+                  "EvaluateTargetHealth": true
+                }
+              }
+            ]
+          comment: An optional comment that describes the purpose of these changes           
+      
+      - name: Configure AWS ELB Rule
+        uses: icalia-actions/aws-configure-elb-rule@v0.0.1
+        with:
+          listener: arn:aws:elasticloadbalancing:us-east-1:215476549484:loadbalancer/app/cicdtest/fd1927d3d82ea719
+          
+          # You can define the conditions, actions and tags using JSON or YAML:
+          conditions: |  
+            - Field: host-header
+              HostHeaderConfig:
+                Values:
+                  - test.cmcloudlab1029.info
+            - Field: path-pattern
+              PathPatternConfig:
+                Values:
+                   - '/test/*'
+                   - '/test'     
+          actions: |
+            - Type: forward
+              TargetGroupArn: arn:aws:elasticloadbalancing:us-east-1:215476549484:targetgroup/cicdtest/da20b250914e1057
+
   runner-job:
     name: Do the job on the runner
     needs: start-runner # required to start the main job when the runner is ready
