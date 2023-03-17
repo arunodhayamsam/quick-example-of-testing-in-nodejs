@@ -1,5 +1,6 @@
 #This action going to handle the testing and if any failure will send the email.
-
+#https://github.com/marketplace/actions/send-email
+#https://www.ravsam.in/blog/send-email-notification-when-github-action-fails/
 
 name: Testing Job
 on:
@@ -25,7 +26,25 @@ jobs:
         run: | 
           npm install
           npm run cover
-    
+      - name: Send the email
+        if: always()
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          # user credentials
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          # email subject
+          subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+          # email body as text
+          body: ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} has ${{ job.status }}
+          # comma-separated string, send email to
+          to: johndoe@gmail.com,doejohn@gmail.com
+          # from email name
+          from: John Doe
+
+
 
 
   
